@@ -7,8 +7,8 @@ from __init__ import logger
 sg.ChangeLookAndFeel('GreenTan')
 
 task_types = [
-    {'text': '批量解压', 'key': '__ExtractAll__', 'tooltip': '批量解压任务'},
-    {'text': '批量压缩', 'key': '__MakeArchiver__', 'tooltip': '批量压缩任务'},
+    {'text': '批量解压', 'key': '__ExtractAll__', 'tooltip': '批量解压任务, 解压来源目录下包括子目录下的所有7z, zip, rar文件'},
+    {'text': '批量压缩', 'key': '__MakeArchiver__', 'tooltip': '批量压缩任务, 仅压缩来源目录下的第一层文件夹'},
 ]
 
 # radio = [[sg.Radio(task['text'], 1),] for task in task_types]
@@ -48,6 +48,7 @@ def run_gui():
                 break
             logger.debug('{} gui command run: archivers: {}, extracts: {}, pwd: {}'.format(task, target, source, pwd))
             task.run()
+            sg.popup_ok("任务执行完成")
 
     window.close()
 

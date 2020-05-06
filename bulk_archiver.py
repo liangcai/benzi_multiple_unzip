@@ -10,19 +10,14 @@ from os import getcwd, listdir, walk, chdir
 from os.path import isfile, isdir, join, splitext, basename, relpath, dirname
 from __init__ import logger
 
-current_path = getcwd()
-
-
-def get_file_type(file):
-    return "zip"
-
 
 class Archiver(ABC):
     def __init__(self, archiver=None, path=None, file_list=[], pwd=None):
         self.archiver = archiver
         self.path = path
         self.file_list = file_list
-        self.pwd = pwd
+        if pwd:
+            self.pwd = pwd.encode()
 
     @abstractmethod
     def un_archive(self):
