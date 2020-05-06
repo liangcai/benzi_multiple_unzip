@@ -26,7 +26,7 @@ layout = [
     
 ]
 
-window = sg.Window('批量解压和批量压缩程序', layout, size=(960, 540), element_justification='center', grab_anywhere=False, resizable=False)
+window = sg.Window('批量解压和批量压缩程序', layout, size=(500, 350), element_justification='center', grab_anywhere=False, resizable=False)
 
 def run_gui():
     while True:
@@ -46,6 +46,7 @@ def run_gui():
                 task = MakeArchiver(archivers=target, extracts=source, pwd=pwd)
             else:
                 break
+            logger.debug('{} gui command run: archivers: {}, extracts: {}, pwd: {}'.format(task, target, source, pwd))
             task.run()
 
     window.close()

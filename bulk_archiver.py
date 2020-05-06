@@ -3,7 +3,7 @@
 # sudo apt install p7zip-full
 from zipfile import ZipFile, ZIP_DEFLATED
 from rarfile import RarFile
-from py7zr import *
+from py7zr import SevenZipFile
 
 from abc import ABC, abstractmethod
 from os import getcwd, listdir, walk, chdir
@@ -35,40 +35,44 @@ class Archiver(ABC):
 
 class Zip(Archiver):
     def un_archive(self):
-        with ZipFile(self.archiver, 'r') as myzip:
-            myzip.extractall(path=self.path, members=None, pwd=self.pwd)
+        with ZipFile(self.archiver, 'r') as z:
+            z.extractall(path=self.path, members=None, pwd=self.pwd)
 
     def make_archive(self):
-        with ZipFile(self.archiver, 'w') as myzip:
-            # myzip.write(self.path, None, ZIP_DEFLATED)
+        with ZipFile(self.archiver, 'w') as z:
+            # z.write(self.path, None, ZIP_DEFLATED)
             archiver_root = dirname(self.archiver)
             for root, dirs, files in walk(self.path):
                 for f in files:
                     filepath = join(root, f)
                     arcname = join(archiver_root, relpath(filepath, self.path))
                     logger.debug("write file to archiver file ,filepath: {}, arcname: {}".format(filepath, arcname))
-                    myzip.write(filepath, arcname)
+                    z.write(filepath, arcname)
 
 
 class Rar(Archiver):
     def un_archive(self):
-        with RarFile(self.archiver, 'r') as myrar:
-            myrar.extractall(path=self.path, members=None, pwd=self.pwd)
+        with RarFile(self.archiver, 'r') as z:
+            z.extractall(path=self.path, members=None, pwd=self.pwd)
 
     def make_archive(self):
-        with RarFile(self.archiver, 'w') as myrar:
+        with RarFile(self.archiver, 'w') as z:
             archiver_root = dirname(self.archiver)
             for root, dirs, files in walk(self.path):
                 for f in files:
                     filepath = join(root, f)
                     arcname = join(archiver_root, relpath(filepath, self.path))
                     logger.debug("write file to archiver file ,filepath: {}, arcname: {}".format(filepath, arcname))
-                    myrar.write(filepath, arcname)
+                    z.write(filepath, arcname)
 
 
 class SevenZip(Archiver):
-    pass
-
+    def un_archive(self):
+        with SevenZipFile(self.archiver, mode='r', password=self.pwd) as z:
+            z.extractall(path=self.path)
+            
+    def make_archive(self):
+        return super().make_archive()
 
 class Task(ABC):
     def __init__(self, archivers=None, extracts=None, pwd=None):
@@ -119,8 +123,8 @@ class Extractall(Task):
             fileext = splitext(file)[1]
             # if fileext.lower() == 'zip':
             #     Zip(path=file).un_archive()
-            logger.debug('file:{}, dir: {}, fileext: {}'.format(
-                file, self.archivers, fileext))
+            logger.debug('unzip file:{}, to dir: {}, pwd: {}'.format(
+                file, self.extracts, self.pwd))
             if fileext == '.7z':
                 SevenZip(archiver=file, path=extracts, pwd=self.pwd).un_archive()
             else:
