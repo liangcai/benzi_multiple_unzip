@@ -18,6 +18,8 @@ class Archiver(ABC):
         self.file_list = file_list
         if pwd:
             self.pwd = pwd.encode()
+        else:
+            self.pwd = None
 
     @abstractmethod
     def un_archive(self):
